@@ -1,0 +1,11 @@
+*.py[co]
+*.sw[po]
+*.egg-info
+*.sublime*
+__pycache__
+.coverage
+.ropeproject
+.cache
+.tox
+
+docs/build/
