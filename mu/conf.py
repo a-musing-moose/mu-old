@@ -23,7 +23,7 @@ class Settings(object):
             setattr(self, key, self.json[key])
         except:
             raise AttributeError()
-        if isinstance(self.key, dict) and 'env' in self.key:
+        if isinstance(getattr(self, key), dict) and 'env' in self.key:
             default = self.key.get('default', None)
             setattr(self, key, self._from_environment(
                 self.key['env'],
