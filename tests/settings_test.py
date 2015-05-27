@@ -68,3 +68,13 @@ def test_uses_default_is_env_not_set():
     c = Settings()
     assert c.key == 'ummm'
     del os.environ['MU_SETTINGS']
+
+
+def test_load_from_file(tmpdir):
+    settings = {'key': 'value'}
+    f = tmpdir.join("settings.json")
+    f.write(json.dumps(settings))
+    os.environ['MU_SETTINGS'] = f.strpath
+    c = Settings()
+    assert c.json == settings
+    del os.environ['MU_SETTINGS']
