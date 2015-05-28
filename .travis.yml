@@ -3,6 +3,11 @@ language: python
 python:
     - '3.4'
 
+cache: pip
+
+before_install:
+    - pip install --upgrade pip
+
 install:
     - pip install -e .
     - pip install -r dev_requirements.txt
