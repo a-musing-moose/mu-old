@@ -13,8 +13,7 @@ _cached_filenames = []
 
 def gen_filenames(only_new=False):
     """
-    Returns a list of filenames referenced in sys.modules and translation
-    files.
+    Returns a list of filenames referenced in sys.modules
     """
     # N.B. ``list(...)`` is needed, because this runs in parallel with
     # application code which might be mutating ``sys.modules``, and this will

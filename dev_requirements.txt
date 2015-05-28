@@ -1,0 +1,13 @@
+
+# Documentation
+Sphinx
+sphinx_rtd_theme
+
+# Testing
+coverage
+pytest
+pytest-cov
+pytest-pep8
+
+# Debuging
+pudb

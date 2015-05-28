@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from ..loading import load_from_path
 
 
 class AppConfig(object):
