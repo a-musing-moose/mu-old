@@ -3,7 +3,9 @@ language: python
 python:
     - '3.4'
 
-cache: pip
+cache:
+  directories:
+    - $HOME/.cache/pip
 
 before_install:
     - pip install --upgrade pip
