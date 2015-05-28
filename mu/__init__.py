@@ -5,13 +5,13 @@ import sys
 from collections import defaultdict
 from colorama import init, deinit, Fore, Style
 
-from mu.loading import load_from_path
+from mu.command import base
 
 
 MU_COMMANDS = [
-    'mu.command.base.Run',
-    'mu.command.base.Shell',
-    'mu.command.base.Services',
+    base.Run(),
+    base.Shell(),
+    base.Apps(),
 ]
 
 
@@ -51,15 +51,8 @@ def bootstrap():
 
 
 def get_commands(settings):
-    try:
-        paths = settings.commands
-    except AttributeError:
-        paths = []
-
-    paths = MU_COMMANDS + paths
     commands = {}
-    for path in paths:
-        command = load_from_path(path)()
+    for command in MU_COMMANDS + settings.get_commands():
         commands[command.get_name()] = command
     return commands
 

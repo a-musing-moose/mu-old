@@ -1,0 +1,4 @@
+crossbar:
+    build: docker/crossbar
+    ports:
+        - "8080:8080"

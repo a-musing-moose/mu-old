@@ -10,7 +10,7 @@ import txaio
 txaio.use_asyncio()
 
 
-class ServicesRunner(object):
+class SessionsRunner(object):
 
     def __init__(self, url, realm, extra=None, serializers=None, debug=False,
                  debug_wamp=False, debug_app=False):
@@ -39,7 +39,7 @@ class ServicesRunner(object):
         self.make = None
         self.serializers = serializers
 
-    def run(self, services=[]):
+    def run(self, sessions=[]):
 
         # 1) factory for use ApplicationSession
         def create(callable):
@@ -58,8 +58,8 @@ class ServicesRunner(object):
 
         # 2) create a WAMP-over-WebSocket transport client factories
         factories = []
-        for service in services:
-            factory = partial(create, callable=service.get_component())
+        for session in sessions:
+            factory = partial(create, callable=session)
             factories.append(
                 WampWebSocketClientFactory(
                     factory,

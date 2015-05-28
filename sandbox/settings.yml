@@ -1,9 +1,7 @@
 name: A collection of services
 router_dsn: ws://127.0.0.1:8080/ws
-realm: player
-commands:
-    - commands.Moo
-services:
+realm: realm1
+apps:
     - aservice
     - bservice
 a_user:

@@ -5,7 +5,7 @@ from colorama import init, deinit, Fore, Style
 
 from mu.runner import reloader
 from mu.loading import load_from_path
-from mu.services import ServicesRunner
+from mu.apps import SessionsRunner
 
 
 class BaseCommand(object):
@@ -80,7 +80,7 @@ class Run(BaseCommand):
         return parser
 
     def __main__(self):
-        name = getattr(self.settings, "name", "component")
+        name = getattr(self.settings, "name", "components")
         print("Starting {0}".format(name))
 
         realm = getattr(self.settings, 'realm', 'realm1')
@@ -94,7 +94,7 @@ class Run(BaseCommand):
             router_dsn
         ))
 
-        runner = ServicesRunner(
+        runner = SessionsRunner(
             url=router_dsn,
             realm=realm,
             extra=self.settings,
@@ -102,8 +102,8 @@ class Run(BaseCommand):
             debug_wamp=self.debug_wamp,
             debug_app=self.debug_app
         )
-        services = self.settings.get_services().values()
-        runner.run(services)
+        sessions = self.settings.get_session_classes()
+        runner.run(sessions)
 
     def execute(self, args, settings):
         self.settings = settings
@@ -145,17 +145,17 @@ class Shell(BaseCommand):
         embed(user_ns=ns)
 
 
-class Services(BaseCommand):
+class Apps(BaseCommand):
 
     group = "mu"
-    description = "List the registered services"
+    description = "List the registered apps"
 
     def execute(self, args, settings):
-        print("{0}# REGISTERED SERVICES{1}".format(
+        print("{0}# REGISTERED APPS{1}".format(
             Style.BRIGHT,
             Style.RESET_ALL
         ))
-        for service in settings.get_services().values():
+        for service in settings.get_apps().values():
             print("    {0}{1}{2} - {3}".format(
                 Fore.RED,
                 service.get_label(),

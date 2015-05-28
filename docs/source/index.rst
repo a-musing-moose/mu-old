@@ -1,16 +1,18 @@
-.. Mu documentation master file, created by
-   sphinx-quickstart on Tue Jan 20 09:56:32 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. _index:
 
 Welcome to Mu's documentation!
 ==============================
+
+.. rubric:: Hopefully everything you need to know about Mu.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   apps
+   commands
+   settings
 
 
 Indices and tables

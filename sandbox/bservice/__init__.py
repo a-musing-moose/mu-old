@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from mu.services import ServiceConfig
+from mu.apps import AppConfig
+from .components import TestComponent
 
 
-class BServiceConfig(ServiceConfig):
+class BServiceConfig(AppConfig):
     name = "B Test Service"
     label = "bservice"
-    component_path = 'bservice.components.TestComponent'
+    session_class = TestComponent
 
 
-config = BServiceConfig
+config = BServiceConfig()

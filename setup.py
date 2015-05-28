@@ -5,8 +5,6 @@ from setuptools import setup, find_packages
 
 PROJECT_DIR = os.path.dirname(__file__)
 
-# Change to the current directory to solve an issue installing on the
-# Vagrant machine.
 if PROJECT_DIR:
     os.chdir(PROJECT_DIR)
 
@@ -41,7 +39,7 @@ setup(
     keywords="processing",
     license='BSD',
     platforms=['linux'],
-    packages=find_packages(exclude=["sandbox*", "tests*"]),
+    packages=find_packages(exclude=["sandbox*", "tests*", "docker*"]),
     include_package_data=True,
     install_requires=get_requirements(),
     classifiers=[

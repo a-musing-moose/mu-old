@@ -1,5 +1,0 @@
-aiopg==0.5.2
-sqlalchemy==0.9.8
-autobahn==0.9.4-2
-pyinotify==0.9.4
-jsonschema==2.4.0

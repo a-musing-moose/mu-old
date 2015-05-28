@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from mu.command.base import BaseCommand
 
 
