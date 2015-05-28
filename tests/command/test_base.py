@@ -15,3 +15,14 @@ def test_base_command_get_group_with_custom_group():
     command = BaseCommand()
     command.group = "another"
     assert command.get_group() == "another"
+
+
+def test_base_command_get_description():
+    command = BaseCommand()
+    assert command.get_description() == ""
+
+
+def test_base_command_get_description_with_custom_description():
+    command = BaseCommand()
+    command.description = "description"
+    assert command.get_description() == "description"
