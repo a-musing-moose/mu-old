@@ -19,18 +19,20 @@ MU_COMMANDS = [
 def bootstrap():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "command",
-        nargs="?",
-        help="sub-command to run"
-    )
-    parser.add_argument(
         '-s',
         '--settings',
         dest='settings',
         default="settings.yml",
         required=False
     )
-    args = parser.parse_args(sys.argv[1:2])
+    parser.add_argument(
+        "command",
+        nargs="?",
+        help="sub-command to run"
+    )
+    parser.add_argument('args', nargs=argparse.REMAINDER)
+
+    args = parser.parse_args(sys.argv[1:])
     os.environ['MU_SETTINGS'] = args.settings
     from mu.conf import settings
     commands = get_commands(settings)
@@ -46,7 +48,7 @@ def bootstrap():
             command = commands[command_name]
             del commands
             try:
-                command._go(sys.argv[2:], settings)
+                command._go(args.args, settings)
             except KeyboardInterrupt:
                 pass
 
