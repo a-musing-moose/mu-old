@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import signal
+
 from functools import partial
 from asyncio import get_event_loop
 
@@ -8,6 +10,17 @@ from autobahn.asyncio.websocket import WampWebSocketClientFactory
 
 import txaio
 txaio.use_asyncio()
+
+
+def _factory_builder(callable, config, debug_app=False):
+    try:
+        session = callable(config)
+    except Exception as e:
+        print(e)
+        get_event_loop().stop()
+    else:
+        session.debug_app = debug_app
+        return session
 
 
 class SessionsRunner(object):
@@ -39,27 +52,19 @@ class SessionsRunner(object):
         self.make = None
         self.serializers = serializers
 
-    def run(self, sessions=[]):
-
-        # 1) factory for use ApplicationSession
-        def create(callable):
-            cfg = ComponentConfig(self.realm, self.extra)
-            try:
-                session = callable(cfg)
-            except Exception as e:
-                # the app component could not be created .. fatal
-                print(e)
-                get_event_loop().stop()
-            else:
-                session.debug_app = self.debug_app
-                return session
+    def run(self, app_sessions=[]):
 
         isSecure, host, port, resource, path, params = parseWsUrl(self.url)
 
-        # 2) create a WAMP-over-WebSocket transport client factories
+        cfg = ComponentConfig(self.realm, self.extra)
         factories = []
-        for session in sessions:
-            factory = partial(create, callable=session)
+        for app_session in app_sessions:
+            factory = partial(
+                _factory_builder,
+                callable=app_session,
+                config=cfg,
+                debug_app=self.debug_app
+            )
             factories.append(
                 WampWebSocketClientFactory(
                     factory,
@@ -70,10 +75,11 @@ class SessionsRunner(object):
                 )
             )
 
-        # 3) start the service clients
         loop = get_event_loop()
         txaio.use_asyncio()
         txaio.config.loop = loop
+
+        protocols = []
         for transport_factory in factories:
             coro = loop.create_connection(
                 transport_factory,
@@ -81,8 +87,26 @@ class SessionsRunner(object):
                 port,
                 ssl=isSecure
             )
-            loop.run_until_complete(coro)
+            (_, protocol) = loop.run_until_complete(coro)
+            protocols.append(protocol)
 
-        # 4) now enter the asyncio event loop
-        loop.run_forever()
+        try:
+            loop.add_signal_handler(signal.SIGTERM, loop.stop)
+        except NotImplementedError:
+            # signals are not available on Windows
+            pass
+
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            # wait until we send Goodbye if user hit ctrl-c
+            # (done outside this except so SIGTERM gets the same handling)
+            pass
+
+        # give Goodbye message a chance to go through, if we still
+        # have an active session
+        for protocol in protocols:
+            if protocol._session:
+                loop.run_until_complete(protocol._session.leave())
+
         loop.close()

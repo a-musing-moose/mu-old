@@ -34,7 +34,7 @@ setup(
     url='https://github.com/a-musing-moose/mu',
     author="Jonathan Moss",
     author_email="jmoss@snowballone.com.au",
-    description="A core for Autobahn based microservices",
+    description="A core for Autobahn/WAMP based microservices",
     long_description=open(os.path.join(PROJECT_DIR, 'README.rst')).read(),
     keywords="processing",
     license='BSD',

@@ -16,6 +16,9 @@ class TestComponent(ApplicationSession):
         yield from self.register(self.on_ping, "a.ping")
         yield from self.send_ping()
 
+    def onLeave(self, reason):
+        print(reason)
+
     def on_ping(self, name):
         print("---> A got ping from {}".format(name))
 

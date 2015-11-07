@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import argparse
 import re
 
@@ -75,8 +76,12 @@ class Run(BaseCommand):
             dest="debug_wamp",
             action="store_true"
         )
-        parser.set_defaults(use_reloader=True, debug=False, debug_app=False,
-                            debug_wamp=False)
+        parser.set_defaults(
+            use_reloader=True,
+            debug=False,
+            debug_app=False,
+            debug_wamp=False
+        )
         return parser
 
     def __main__(self):
