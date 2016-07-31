@@ -1,9 +1,10 @@
 import pytest
-from mu.loading import load_from_path
+
+from mu.utils.loading import load_from_path
 
 
 def test_can_load_abitrary_attribute_from_module():
-    a = load_from_path("mu.loading.load_from_path")
+    a = load_from_path("mu.utils.loading.load_from_path")
     assert a == load_from_path
 
 

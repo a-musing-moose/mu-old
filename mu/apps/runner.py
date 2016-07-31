@@ -1,32 +1,34 @@
-# -*- coding: utf-8 -*-
+import logging
 import signal
-
-from functools import partial
-from asyncio import get_event_loop
-
-from autobahn.wamp.types import ComponentConfig
-from autobahn.websocket.protocol import parseWsUrl
-from autobahn.asyncio.websocket import WampWebSocketClientFactory
-
 import txaio
-txaio.use_asyncio()
+
+from asyncio import Task, get_event_loop
+from functools import partial
+
+from autobahn.asyncio.websocket import WampWebSocketClientFactory
+from autobahn.wamp.types import ComponentConfig
+from autobahn.websocket.util import parse_url
+
+
+log = logging.getLogger(__name__)
 
 
 def _factory_builder(callable, config, debug_app=False):
     try:
         session = callable(config)
     except Exception as e:
-        print(e)
+        log.exception(e)
         get_event_loop().stop()
     else:
         session.debug_app = debug_app
         return session
 
+protocols = []
+
 
 class SessionsRunner(object):
 
-    def __init__(self, url, realm, extra=None, serializers=None, debug=False,
-                 debug_wamp=False, debug_app=False):
+    def __init__(self, url, realm, extra=None, serializers=None, ssl=None):
         """
         :param url: The WebSocket URL of the WAMP router to connect to
         :type url: unicode
@@ -36,25 +38,28 @@ class SessionsRunner(object):
         :type extra: dict
         :param serializers: A list of WAMP serializers to use
         :type serializers: list
-        :param debug: Turn on low-level debugging.
-        :type debug: bool
-        :param debug_wamp: Turn on WAMP-level debugging.
-        :type debug_wamp: bool
-        :param debug_app: Turn on app-level debugging.
-        :type debug_app: bool
+        :param ssl: An (optional) SSL context instance or a bool
+        :type ssl: :class:`ssl.SSLContext` or bool
         """
         self.url = url
         self.realm = realm
         self.extra = extra or dict()
-        self.debug = debug
-        self.debug_wamp = debug_wamp
-        self.debug_app = debug_app
         self.make = None
         self.serializers = serializers
+        self.ssl = ssl
 
     def run(self, app_sessions=[]):
 
-        isSecure, host, port, resource, path, params = parseWsUrl(self.url)
+        isSecure, host, port, resource, path, params = parse_url(self.url)
+
+        if self.ssl is None:
+            ssl = isSecure
+        else:
+            if self.ssl and not isSecure:
+                raise RuntimeError(
+                    "ssl argument is True but using ws: protocol"
+                )
+            ssl = self.ssl
 
         cfg = ComponentConfig(self.realm, self.extra)
         factories = []
@@ -62,16 +67,13 @@ class SessionsRunner(object):
             factory = partial(
                 _factory_builder,
                 callable=app_session,
-                config=cfg,
-                debug_app=self.debug_app
+                config=cfg
             )
             factories.append(
                 WampWebSocketClientFactory(
                     factory,
                     url=self.url,
-                    serializers=self.serializers,
-                    debug=self.debug,
-                    debug_wamp=self.debug_wamp
+                    serializers=self.serializers
                 )
             )
 
@@ -79,15 +81,14 @@ class SessionsRunner(object):
         txaio.use_asyncio()
         txaio.config.loop = loop
 
-        protocols = []
         for transport_factory in factories:
             coro = loop.create_connection(
                 transport_factory,
                 host,
                 port,
-                ssl=isSecure
+                ssl=ssl
             )
-            (_, protocol) = loop.run_until_complete(coro)
+            _, protocol = loop.run_until_complete(coro)
             protocols.append(protocol)
 
         try:
@@ -103,10 +104,17 @@ class SessionsRunner(object):
             # (done outside this except so SIGTERM gets the same handling)
             pass
 
-        # give Goodbye message a chance to go through, if we still
-        # have an active session
-        for protocol in protocols:
-            if protocol._session:
-                loop.run_until_complete(protocol._session.leave())
+        close_loop_cleanly()
 
-        loop.close()
+
+def close_loop_cleanly():
+    log.debug("closing event loop")
+    loop = get_event_loop()
+    for protocol in protocols:
+        if protocol._session:
+            loop.run_until_complete(protocol._session.leave())
+
+    for task in Task.all_tasks():
+        loop.run_until_complete(task)
+    loop.close()
+    log.debug("event loop closed")

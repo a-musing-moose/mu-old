@@ -4,15 +4,16 @@ import os
 import sys
 
 from collections import defaultdict
-from colorama import init, deinit, Fore, Style
+
+from colorama import Fore, Style, deinit, init
 
 from mu.command import base
-
+from mu.utils.log import initialise_logging
 
 MU_COMMANDS = [
     base.Run(),
     base.Shell(),
-    base.Apps(),
+    base.Components(),
 ]
 
 
@@ -35,6 +36,7 @@ def bootstrap():
     args = parser.parse_args(sys.argv[1:])
     os.environ['MU_SETTINGS'] = args.settings
     from mu.conf import settings
+    initialise_logging(settings)
     commands = get_commands(settings)
     if args.command is None:
         parser.print_help()

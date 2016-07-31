@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 import argparse
 import re
 
-from colorama import init, deinit, Fore, Style
+from colorama import Fore, Style, deinit, init
 
-from mu.runner import reloader
-from mu.loading import load_from_path
 from mu.apps import SessionsRunner
+from mu.utils.loading import load_from_path
+from mu.utils.reloading import reloader
 
 
 class BaseCommand(object):
@@ -64,23 +63,9 @@ class Run(BaseCommand):
             dest="debug",
             action="store_true"
         )
-        parser.add_argument(
-            '-da',
-            '--debug-app',
-            dest="debug_app",
-            action="store_true"
-        )
-        parser.add_argument(
-            '-dw',
-            '--debug-wamp',
-            dest="debug_wamp",
-            action="store_true"
-        )
         parser.set_defaults(
             use_reloader=True,
-            debug=False,
-            debug_app=False,
-            debug_wamp=False
+            debug=False
         )
         return parser
 
@@ -102,10 +87,7 @@ class Run(BaseCommand):
         runner = SessionsRunner(
             url=router_dsn,
             realm=realm,
-            extra=self.settings,
-            debug=self.debug,
-            debug_wamp=self.debug_wamp,
-            debug_app=self.debug_app
+            extra=self.settings
         )
         sessions = self.settings.get_session_classes()
         runner.run(sessions)
@@ -113,8 +95,6 @@ class Run(BaseCommand):
     def execute(self, args, settings):
         self.settings = settings
         self.debug = args.debug
-        self.debug_wamp = args.debug_wamp
-        self.debug_app = args.debug_app
         if args.use_reloader:
             reloader(self.__main__)
         else:
@@ -150,19 +130,19 @@ class Shell(BaseCommand):
         embed(user_ns=ns)
 
 
-class Apps(BaseCommand):
+class Components(BaseCommand):
 
     group = "mu"
-    description = "List the registered apps"
+    description = "List the registered components"
 
     def execute(self, args, settings):
-        print("{0}# REGISTERED APPS{1}".format(
+        print("{0}Registered components{1}".format(
             Style.BRIGHT,
             Style.RESET_ALL
         ))
         for service in settings.get_apps().values():
             print("    {0}{1}{2} - {3}".format(
-                Fore.RED,
+                Fore.RED + Style.BRIGHT,
                 service.get_label(),
                 Style.RESET_ALL,
                 service.get_name()

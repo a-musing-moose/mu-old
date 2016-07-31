@@ -1,32 +1,12 @@
 #!/usr/bin/env python
 import os
-import platform
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 PROJECT_DIR = os.path.dirname(__file__)
 
 if PROJECT_DIR:
     os.chdir(PROJECT_DIR)
-
-
-CORE_REQUIREMENTS = [
-    'PyYAML',
-    'autobahn',
-    'colorama',
-    'ipython',
-]
-
-
-LINUX_REQUIREMENTS = [
-    'pyinotify',
-]
-
-
-def get_requirements():
-    requirements = CORE_REQUIREMENTS
-    if platform.system() == "Linux":
-        requirements += LINUX_REQUIREMENTS
-    return requirements
 
 setup(
     name='mu',
@@ -41,7 +21,13 @@ setup(
     platforms=['linux'],
     packages=find_packages(exclude=["sandbox*", "tests*", "docker*"]),
     include_package_data=True,
-    install_requires=get_requirements(),
+    install_requires=[
+        'autobahn',
+        'colorama',
+        'PyYAML',
+        'ipython',
+        'watchdog',
+    ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

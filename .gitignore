@@ -4,8 +4,8 @@
 *.sublime*
 __pycache__
 .coverage
-.ropeproject
 .cache
 .tox
+.python-version
 
 docs/build/

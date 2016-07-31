@@ -1,3 +1,2 @@
-# -*- coding: utf-8 -*-
-from .config import AppConfig
-from .runner import SessionsRunner
+from .config import AppConfig  # noqa
+from .runner import SessionsRunner  # noqa

@@ -1,4 +1,6 @@
-from mu.command import BaseCommand
+from mu.command.base import BaseCommand, Components
+
+# BASE COMMAND TESTS
 
 
 def test_get_name():
@@ -26,3 +28,16 @@ def test_base_command_get_description_with_custom_description():
     command = BaseCommand()
     command.description = "description"
     assert command.get_description() == "description"
+
+
+# COMPONENTS COMMAND TEST
+
+
+def test_components_command_is_in_mu_group():
+    command = Components()
+    assert command.get_group() == "mu"
+
+
+def test_components_command_name_is_components():
+    command = Components()
+    assert command.get_name() == "components"

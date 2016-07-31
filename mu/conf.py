@@ -1,23 +1,43 @@
-
-# -*- coding: utf-8 -*-
 import os
-import yaml
+import re
 from collections import OrderedDict
 
-from .loading import load_from_path
+import yaml
+
+from mu.utils.loading import load_from_path
 
 
 class Settings(object):
 
+    env_pattern = re.compile(
+        r'\$\{(?P<env_var>\w*)(?::(?P<default>[^}]*))?\}$'
+    )
+
     def __init__(self):
         self._data = None
         self._apps = OrderedDict()
+        yaml.SafeLoader.add_constructor('!envex', self._envex_constructor)
+        yaml.SafeLoader.add_implicit_resolver(
+            "!envex",
+            self.env_pattern,
+            first=['$']
+        )
+
+    def _envex_constructor(self, loader, node):
+        value = loader.construct_scalar(node)
+        result = self.env_pattern.match(value)
+
+        env_var = result.group('env_var')
+        default = result.group('default') or ""
+        try:
+            value = os.environ[env_var]
+        except KeyError:
+            value = default
+        return value
 
     @property
     def _loaded(self):
-        if self._data is None:
-            return False
-        return True
+        return self._data is not None
 
     def _setup(self):
         source = os.environ.get("MU_SETTINGS", None)

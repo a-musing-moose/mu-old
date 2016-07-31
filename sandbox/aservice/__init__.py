@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from mu.apps import AppConfig
-from .components import TestComponent
+
 from .commands import Moo
+from .components import TestComponent
 
 
 class AServiceConfig(AppConfig):

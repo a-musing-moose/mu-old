@@ -1,11 +1,36 @@
-# -*- coding: utf-8 -*-
+import logging
 import os
 import sys
 
-try:
-    from .notify import get_watcher  # Linux only as uses inotify
-except ImportError:
-    from .other import get_watcher
+from watchdog.observers import Observer
+
+from mu.apps.runner import close_loop_cleanly
+
+log = logging.getLogger(__name__)
+
+
+class ExitingProcessor(object):
+
+    def dispatch(self, event):
+        log.debug("Notifier Status: RESTARTING")
+        os._exit(3)
+
+
+class Notifier(object):
+
+    def __init__(self):
+        self._observer = Observer()
+        handler = ExitingProcessor()
+        for path in filter(os.path.exists, sys.path):
+            self._observer.schedule(handler, path, recursive=True)
+
+    def start(self):
+        self._observer.start()
+        log.debug("Notifier Status: STARTED")
+
+    def stop(self):
+        self._observer.stop()
+        self._observer.join()
 
 
 def restart_with_reloader():
@@ -24,9 +49,11 @@ def restart_with_reloader():
 
 def reloader(main_func):
     if os.environ.get("RUN_MAIN") == "true":
-        notifier = get_watcher()
+        notifier = Notifier()
+        notifier.start()
         main_func()
         notifier.stop()
+        close_loop_cleanly()
     else:
         try:
             exit_code = restart_with_reloader()

@@ -14,6 +14,7 @@
 
 import sys
 from os.path import abspath, dirname, join
+
 import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,

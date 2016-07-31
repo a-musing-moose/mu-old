@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 class AppConfig(object):
     session_class = None
     name = None

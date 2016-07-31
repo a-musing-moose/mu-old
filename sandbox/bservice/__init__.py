@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from mu.apps import AppConfig
+
 from .components import TestComponent
 
 

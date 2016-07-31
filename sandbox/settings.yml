@@ -4,9 +4,13 @@ realm: realm1
 apps:
     - aservice
     - bservice
-a_user:
-        env: A_USER
-        default: "auser"
-a_password:
-    env: A_PASSWORD
-
+# From environmental variable with default
+a_user: ${A_USER:default user}
+# From environmental variable with no default
+a_password: ${A_PASSWORD}
+logging:
+    loggers:
+        mu:
+            handles:
+                - console
+            level: DEBUG
