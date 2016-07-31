@@ -2,7 +2,6 @@
 import argparse
 import os
 import sys
-
 from collections import defaultdict
 
 from colorama import Fore, Style, deinit, init

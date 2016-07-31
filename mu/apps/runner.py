@@ -1,14 +1,12 @@
 import logging
 import signal
-import txaio
-
 from asyncio import Task, get_event_loop
 from functools import partial
 
+import txaio
 from autobahn.asyncio.websocket import WampWebSocketClientFactory
 from autobahn.wamp.types import ComponentConfig
 from autobahn.websocket.util import parse_url
-
 
 log = logging.getLogger(__name__)
 

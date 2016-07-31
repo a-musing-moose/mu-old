@@ -1,5 +1,6 @@
 from mu.command.base import BaseCommand, Components
 
+
 # BASE COMMAND TESTS
 
 
